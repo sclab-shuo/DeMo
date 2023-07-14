@@ -20,7 +20,7 @@
 # ||  [Usage]: - to execute via tcsh: 
 # ||              >   tcsh -xef fmri_prep_hj.sh 0xx |& tee output.fmri_prep_hj.0xx.log.sh
 # ||           - to execute via bash: 
-# ||              >   tcsh -xef fmri_prep_hj.sh 0xx 2>&1 | tee output.fmri_prep_hj.oxx.log.sh
+# ||              >   tcsh -xef fmri_prep_hj.sh 0xx 2>&1 | tee output.fmri_prep_hj.0xx.log.sh
 # ||
 # ||           - modify some parameters and the preprocessing blocks in the script if needed 
 # ||
@@ -61,9 +61,10 @@ endif
 
 # assign output directory name
 
-set afni_dir = "/Users/shuo/abin"
-set script_dir = "/Users/shuo/OneDrive - McGill University/Git_Codes/DeMo" 
-set root_dir = /Volumes/JDlab_Shuo/DeMo/Hannah
+set afni_dir = /home/hannah/abin
+set script_dir = /media/hannah/JDlab_HJ/DeMo
+set root_dir = /media/hannah/JDlab_HJ/DeMo
+
 set ses_dir = MVPA
 
 set data_dir = $root_dir/$subj/ses-$ses_dir/func
@@ -72,13 +73,13 @@ set fmap_dir = $root_dir/$subj/ses-$ses_dir/fmap
 
 
 # set list of task runs
-set tasks = (block1 block2) # block2 block3 block4 block5
+set tasks = (block2) # block1 block2 block3 block4 block5
 set grp_base = block2
 
 set output_dir = $root_dir/derivative/$subj/ses-$ses_dir/func
 # set output_t1 = $root_dir/derivative/$subj/ses-D1/anat
 
-set block2do = (9 10) #(0 1 2 3 4 5 6 7 8 9 10 cs)
+set block2do = (99) #(0 1 2 3 4 5 6 7 8 9 10 cs)
 
 set versions2do = (DySy DySn) #(DySy DySn DnSy DnSn)
 
@@ -111,18 +112,6 @@ end
 # echo $tr_counts
 
 # ============================ block 00 : radcor ============================
-
-
-# # apply 3dTcat to copy input dsets to results dir,
-# # while removing the first 0 TRs
-# 3dTcat -prefix $output_dir/pb00.$subj.r01.tcat                   \
-#     sub-027_ses-D2_task-rest1_part-mag_bold.nii.gz'[0..$]'
-# 3dTcat -prefix $output_dir/pb00.$subj.r02.tcat                   \
-#     sub-027_ses-D2_task-testA_part-mag_bold.nii.gz'[0..$]'
-
-# # and make note of repetitions (TRs) per run
-# set tr_counts = ( 280 135 )
-
 
 if (" $block2do " =~ *" 0 "*) then
     echo "Proprocessing block 00 is ongoing."
@@ -516,6 +505,8 @@ if (" $block2do " =~ *" 8 "*) then
     mkdir $output_dir/pb08.EPItrans
     cd $output_dir/pb08.EPItrans
 
+    3dcopy $afni_dir/MNI152_T1_2009c+tlrc rm.mnit1_09c_1mm.nii.gz
+
     foreach run ( $tasks )
 
         if (" $run " =~ *$grp_base*) then
@@ -727,7 +718,7 @@ endif
 
 
 cd "$script_dir"
-mv output.*.sh $output_dir/`ls output.*.sh`
+mv `ls -t output.*.sh | head -n1` $output_dir/`ls -t output.*.sh | head -n1`
 echo "execution finished: `date`"
 
 
